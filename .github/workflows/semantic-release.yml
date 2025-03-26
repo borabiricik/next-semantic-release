@@ -1,12 +1,8 @@
 name: Semantic release
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 on:
   push:
     branches:
-      - main
+      - release/*
 
 jobs:
   publish:
@@ -15,11 +11,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Git config
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Install yarn
         run: npm install -g yarn
@@ -33,4 +37,5 @@ jobs:
       - name: Semantic release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npx semantic-release
